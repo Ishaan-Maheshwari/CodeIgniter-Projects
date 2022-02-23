@@ -18,5 +18,9 @@ class UserModel extends CI_Model {
         public function verify_user($data){
                 return $this->mongo_db->where($data)->get("authcollection");
         }
+
+        public function check_email($edata){
+                return count($this->mongo_db->where($edata)->get("authcollection") );
+        }
 }
 ?>
