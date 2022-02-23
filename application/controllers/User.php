@@ -21,7 +21,7 @@ class User extends CI_Controller {
         $this->load->library('form_validation');
 
         $this->form_validation->set_rules('username', 'username', 'required');
-        $this->form_validation->set_rules('email', 'email', 'required');
+        $this->form_validation->set_rules('email', 'email', 'required|valid_email');
         $this->form_validation->set_rules('password', 'password', 'required');
 
         if ($this->form_validation->run() === FALSE)
@@ -30,14 +30,21 @@ class User extends CI_Controller {
             }
         else
             {
-                $data = array(
+                
+                if ($this->UserModel->check_email(array('email'=>$this->input->post('email'))) == 0){
+                    $data = array(
                     'username' => $this->input->post('username'),
                     'email' => $this->input->post('email'),
                     'password' => $this->input->post('password')
-                );
-                $this->UserModel->set_user( $data);
-                echo "Done Successfully";
-                exit;
+                    );
+                    $this->UserModel->set_user( $data);
+                    echo "Done Successfully";
+                    exit;
+                }else{
+                    echo "This email is already registered with us.";
+                    exit;
+                }
+                
             }
     }
 
@@ -60,9 +67,15 @@ class User extends CI_Controller {
                     'password' => $this->input->post('password')
                 );
                 $result = $this->UserModel->verify_user( $data);
-                $r = $result[0];
-                echo "Welcome ".$r["username"];
-                exit;
+                if(count($result) != 0){
+                    $r = $result[0];
+                    echo "Welcome ".$r["username"];
+                    echo "<br>Your Email Adress is : ".$r["email"];
+                    exit;
+                }else{
+                    echo "Invalid Email OR Password ! Try Again !";
+                }
+                
             }
     }
 
